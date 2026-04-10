@@ -98,5 +98,5 @@ ________________________________________
 9. Captures d’écran
 Capture 1
 
- ![WhatsApp Image 2026-04-10 at 22 14 38 (2)](https://github.com/user-attachments/assets/206c44d5-4030-4178-9d72-fb32f612b8ae)
+![WhatsApp Image 2026-04-10 at 22 14 38](https://github.com/user-attachments/assets/38a7fc8c-f67c-42c3-970d-d9811978730d)
 
