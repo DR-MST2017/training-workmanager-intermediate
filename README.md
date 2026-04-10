@@ -97,6 +97,6 @@ L’utilisateur peut ensuite afficher l’image finale.
 ________________________________________
 9. Captures d’écran
 Capture 1
-![WhatsApp Image 2026-04-10 at 22 02 46](https://github.com/user-attachments/assets/11bf4492-024a-415d-a629-b0cd3e6dc184)
 
- 
+ ![WhatsApp Image 2026-04-10 at 22 14 38 (2)](https://github.com/user-attachments/assets/206c44d5-4030-4178-9d72-fb32f612b8ae)
+
