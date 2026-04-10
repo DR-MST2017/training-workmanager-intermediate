@@ -1,39 +1,102 @@
 WorkManager Codelab
 ===================================
 
-This repository contains the code for the [WorkManager Codelab](https://developer.android.com/codelabs/basic-android-kotlin-compose-workmanager).
+Compte rendu – Application Blur-O-Matic avec WorkManager
+1. Introduction
+Dans cet atelier de programmation Android, nous avons utilisé l’application Blur-O-Matic afin d’apprendre à utiliser WorkManager, un composant de l’architecture Jetpack permettant d’exécuter des tâches en arrière-plan.
+L’objectif principal de l’application est de permettre à l’utilisateur de sélectionner un niveau de flou pour une image, d’appliquer ce flou et d’enregistrer l’image finale sur l’appareil.
+Les opérations telles que le floutage de l’image, le nettoyage des fichiers temporaires et l’enregistrement de l’image sont exécutées en arrière-plan grâce à WorkManager.
+________________________________________
+2. Présentation de l’application
+L’application Blur-O-Matic propose une interface simple permettant :
+•	de choisir le niveau de flou 
+•	de lancer le traitement avec le bouton Start 
+•	d’enregistrer l’image floutée 
+L’écran principal contient :
+•	une image 
+•	des boutons radio pour sélectionner le niveau de flou 
+•	un bouton Start 
+Lorsque l’utilisateur appuie sur Start, l’application démarre un processus en arrière-plan qui :
+1.	nettoie les fichiers temporaires 
+2.	applique le flou à l’image 
+3.	enregistre l’image finale 
+________________________________________
+3. Exploration de la structure du projet
+Le projet contient plusieurs classes importantes :
+BlurViewModel
+Cette classe gère l’état de l’application et communique avec le repository pour démarrer les tâches.
+WorkManagerBluromaticRepository
+Cette classe est responsable de la gestion des tâches WorkManager et du lancement des workers.
+BlurWorker
+Ce worker applique le flou à l’image.
+CleanupWorker
+Ce worker supprime les fichiers temporaires créés lors du traitement.
+SaveImageToFileWorker
+Ce worker enregistre l’image floutée dans un fichier permanent.
+BluromaticScreen
+Cette classe contient l’interface utilisateur développée avec Jetpack Compose.
+________________________________________
+4. WorkManager
+WorkManager est un composant Android Jetpack qui permet d’exécuter des tâches en arrière-plan même si l’application est fermée.
+Ses principaux avantages sont :
+•	exécution garantie des tâches 
+•	gestion automatique des threads 
+•	possibilité d’enchaîner plusieurs tâches 
+•	surveillance de l’état des tâches 
+Dans cette application, WorkManager est utilisé pour :
+•	flouter une image 
+•	nettoyer les fichiers temporaires 
+•	enregistrer l’image finale 
+________________________________________
+5. Création du BlurWorker
+Le BlurWorker est une classe qui étend CoroutineWorker.
+Elle contient la méthode principale :
+override suspend fun doWork(): Result
+Cette méthode :
+1.	récupère l’URI de l’image 
+2.	applique la fonction blurBitmap() 
+3.	enregistre l’image floutée 
+4.	retourne le résultat 
+Les opérations sont exécutées dans :
+withContext(Dispatchers.IO)
+pour effectuer les opérations d’entrée/sortie.
+________________________________________
+6. Données d’entrée et de sortie
+Les données entre les workers sont transmises à l’aide d’un objet Data.
+Exemple :
+val inputData = workDataOf(
+KEY_IMAGE_URI to imageUri,
+KEY_BLUR_LEVEL to blurLevel
+)
+Ces données sont récupérées dans le worker grâce à :
+inputData.getString(KEY_IMAGE_URI)
+inputData.getInt(KEY_BLUR_LEVEL)
+________________________________________
+7. Chaîne de WorkManager
+Au lieu d’exécuter une seule tâche, nous avons créé une chaîne de workers.
+La chaîne est la suivante :
+1️⃣ CleanupWorker
+→ supprime les fichiers temporaires
+2️⃣ BlurWorker
+→ applique le flou à l’image
+3️⃣ SaveImageToFileWorker
+→ enregistre l’image finale dans le stockage
+La chaîne est créée avec :
+workManager.beginWith(cleanup)
+.then(blurWork)
+.then(saveWork)
+.enqueue()
+Ainsi chaque worker s’exécute après le précédent.
+________________________________________
+8. Résultat
+Après l’exécution de l’application :
+•	les workers s’exécutent en arrière-plan 
+•	des notifications indiquent l’état du traitement 
+•	l’image floutée est enregistrée dans le stockage de l’appareil 
+L’utilisateur peut ensuite afficher l’image finale.
+________________________________________
+9. Captures d’écran
+Capture 1
+![WhatsApp Image 2026-04-10 at 22 02 46](https://github.com/user-attachments/assets/11bf4492-024a-415d-a629-b0cd3e6dc184)
 
-Introduction
-------------
-
-At I/O 2018, Google announced [Android Jetpack](https://developer.android.com/jetpack/), a collection of libraries, tools, and architectural guidance to accelerate and simplify the development of great Android apps. One of those libraries is the [WorkManager library](https://developer.android.com/topic/libraries/architecture/workmanager/). The WorkManager library provides a unified API for deferrable one-off or recurring background tasks that need guaranteed execution. You can learn more by reading the [WorkManager Guide](https://developer.android.com/topic/libraries/architecture/workmanager/), the [WorkManager Reference](https://developer.android.com/reference/androidx/work/package-summary) or doing the [WorkManager Codelab](https://developer.android.com/codelabs/basic-android-kotlin-compose-workmanager).
-
-Pre-requisites
---------------
-
-* Familiarity with how to open, build, and run apps with Android Studio.
-
-* Make sure Android Studio is updated, as well as your SDK and Gradle. Otherwise, you may have to wait for a while until all the updates are done.
-
-* A device or emulator that runs API level 21+
-
-You need to be solidly familiar with the Kotlin programming language, object-oriented design concepts, and Android Development Fundamentals.
-
-In particular:
-
-* Basics of [Jetpack Compose](https://developer.android.com/courses/pathways/compose)
-* Some familiarity with URIs and File I/O
-* Familiarity with [Kotlin Flow](https://developer.android.com/kotlin/flow) and [ViewModel](https://developer.android.com/topic/libraries/architecture/viewmodel)
-
-Getting Started
----------------
-
-1. [Install Android Studio](https://developer.android.com/studio/install.html), if you don't already have it.
-2. Download the sample.
-3. Import the sample into Android Studio.
-4. Build and run the sample.
-
-Notes:
-- The application code contains a battery not low constraint. If the device/emulator has a low battery, the application will appear to hang until this constraint is met.
-
-- The app requires notifications to be enabled. To enable notifications, navigate to the Android Settings menu > Apps > Blur-O-Matic > Notifications > Enable "All Blur-O-Matic notifications".
+ 
